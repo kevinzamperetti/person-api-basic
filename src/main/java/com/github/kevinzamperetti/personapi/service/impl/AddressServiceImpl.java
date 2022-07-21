@@ -1,7 +1,9 @@
 package com.github.kevinzamperetti.personapi.service.impl;
 
 import com.github.kevinzamperetti.personapi.entity.Address;
+import com.github.kevinzamperetti.personapi.entity.Person;
 import com.github.kevinzamperetti.personapi.repository.AddressRepository;
+import com.github.kevinzamperetti.personapi.repository.PersonRepository;
 import com.github.kevinzamperetti.personapi.service.AddressService;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,11 @@ public class AddressServiceImpl implements AddressService {
 
     private AddressRepository repository;
 
-    public AddressServiceImpl(AddressRepository repository) {
+    private PersonRepository personRepository;
+
+    public AddressServiceImpl(AddressRepository repository, PersonRepository personRepository) {
         this.repository = repository;
+        this.personRepository = personRepository;
     }
 
     public List<Address> findAll() {
@@ -26,16 +31,19 @@ public class AddressServiceImpl implements AddressService {
     }
 
     public Address save(Address address) {
-        return repository.save(address);
+        Optional<Person> person = personRepository.findById(address.getPerson().getId());
+        if (person.isPresent()) {
+            return repository.save(address);
+        }
+        throw new IllegalArgumentException("Person not found ");
     }
 
     public void deleteById(Long id) {
         Optional<Address> address = repository.findById(id);
         if (address.isPresent()) {
             repository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Person not found ");
         }
+        throw new IllegalArgumentException("Address not found ");
     }
 
 }

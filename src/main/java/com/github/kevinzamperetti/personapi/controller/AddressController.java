@@ -37,8 +37,12 @@ public class AddressController {
 
     @PostMapping
     public ResponseEntity<Address> save(@RequestBody Address address) {
-        service.save(address);
-        return new ResponseEntity(address, HttpStatus.CREATED);
+        try {
+            service.save(address);
+            return new ResponseEntity(address, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e ) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("{id}")
